@@ -66,8 +66,16 @@ public class MultiSelectListBox<T>
     private static <T> JsonArray modelToPresentation(
             MultiSelectListBox<T> listBox, Set<T> model) {
         JsonArray array = Json.createArray();
-        model.stream().map(listBox.getItems()::indexOf)
-                .forEach(index -> array.set(array.length(), index));
+        model.stream()
+                .filter(selectedItem -> listBox.getItems()
+                        .stream()
+                        .anyMatch(item ->
+                                listBox.getItemId(selectedItem)
+                                        .equals(listBox.getItemId(item))))
+                .forEach(itm -> {
+                    int idx = listBox.getItems().indexOf(itm);
+                    array.set(array.length(), idx);
+                });
         return array;
     }
 

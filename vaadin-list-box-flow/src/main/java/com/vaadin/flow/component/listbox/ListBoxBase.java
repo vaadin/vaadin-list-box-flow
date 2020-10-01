@@ -350,7 +350,7 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
         }
     }
 
-    Object getItemId(ITEM item) {
+    protected Object getItemId(ITEM item) {
         return getIdentifierProvider().apply(item);
     }
 

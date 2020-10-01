@@ -64,7 +64,7 @@ public class MultiSelectListBoxTest {
         items.add(foo);
         items.add(bar);
         dataProvider = new ListDataProvider<>(items);
-        listBox.setDataProvider(dataProvider);
+        listBox.setItems(dataProvider);
 
         eventValues = new ArrayList<>();
         listBox.addValueChangeListener(e -> eventValues.add(e.getValue()));
