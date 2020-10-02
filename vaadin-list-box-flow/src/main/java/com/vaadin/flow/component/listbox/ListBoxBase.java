@@ -217,11 +217,6 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
     }
 
     private void refresh(ITEM item) {
-        // TODO: remove commented
-//        VaadinItem<ITEM> itemComponent = getItemComponents().stream()
-//                .filter(component -> component.getItem().equals(item))
-//                .findFirst().get();
-//        refresh(itemComponent);
         getItemComponents().stream()
                 .filter(vaadinItem -> getItemId(vaadinItem.getItem())
                         .equals(getItemId(item)))
