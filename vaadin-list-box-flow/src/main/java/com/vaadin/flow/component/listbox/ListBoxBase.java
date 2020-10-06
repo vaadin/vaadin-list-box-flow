@@ -65,8 +65,8 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
         HasListDataView<ITEM, ListBoxListDataView<ITEM>>,
         HasDataView<ITEM, Void, ListBoxDataView<ITEM>> {
 
-    private final AtomicReference<DataProvider<ITEM, ?>> dataProvider = new AtomicReference<>(
-            DataProvider.ofItems());
+    private final AtomicReference<DataProvider<ITEM, ?>> dataProvider =
+            new AtomicReference<>(DataProvider.ofItems());
     private List<ITEM> items;
     private ComponentRenderer<? extends Component, ITEM> itemRenderer = new TextRenderer<>();
     private SerializablePredicate<ITEM> itemEnabledProvider = item -> isEnabled();
@@ -270,16 +270,17 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
         // implementation does not apply the filter converter if Query has a
         // null filter
         DataProvider<ITEM, Void> convertedDataProvider =
-                new DataProviderWrapper<ITEM, Void, SerializablePredicate<ITEM>>(
-                        inMemoryDataProvider) {
-                    @Override
-                    protected SerializablePredicate<ITEM> getFilter(Query<ITEM, Void> query) {
-                        // Just ignore the query filter (Void) and apply the
-                        // predicate only
-                        return Optional.ofNullable(inMemoryDataProvider.getFilter())
-                                .orElse(item -> true);
-                    }
-                };
+            new DataProviderWrapper<ITEM, Void, SerializablePredicate<ITEM>>(
+                    inMemoryDataProvider) {
+                @Override
+                protected SerializablePredicate<ITEM> getFilter(
+                        Query<ITEM, Void> query) {
+                    // Just ignore the query filter (Void) and apply the
+                    // predicate only
+                    return Optional.ofNullable(inMemoryDataProvider.getFilter())
+                            .orElse(item -> true);
+                }
+            };
         return setItems(convertedDataProvider);
     }
 

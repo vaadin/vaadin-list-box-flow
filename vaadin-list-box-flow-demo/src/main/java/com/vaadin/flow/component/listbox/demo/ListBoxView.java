@@ -15,14 +15,17 @@
  */
 package com.vaadin.flow.component.listbox.demo;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.listbox.ListBox;
 import com.vaadin.flow.component.listbox.MultiSelectListBox;
+import com.vaadin.flow.component.listbox.dataview.ListBoxListDataView;
 import com.vaadin.flow.component.listbox.demo.data.DepartmentData;
 import com.vaadin.flow.component.listbox.demo.entity.Department;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
@@ -30,8 +33,12 @@ import com.vaadin.flow.demo.DemoView;
 import com.vaadin.flow.router.Route;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * View for {@link ListBox} demo.
@@ -41,11 +48,16 @@ import java.util.List;
 @Route("vaadin-list-box")
 public class ListBoxView extends DemoView {
 
+    private static final String DATA_VIEW = "Data View";
+
     @Override
     public void initView() {
         basicDemo();// Basic usage
         disabledItem();
         multiSelection();
+        dataViewRefreshItem();// Data View
+        dataViewAddAndRemoveItem();
+        dataViewFiltering();
         separatorDemo();// Presentation
         customOptions();
         usingTemplateRenderer();
@@ -162,6 +174,85 @@ public class ListBoxView extends DemoView {
         addCard("Presentation", "Multi-line label", listBox);
     }
 
+    private void dataViewRefreshItem() {
+        // begin-source-example
+        // source-example-heading: Refresh Items
+        MultiSelectListBox<Employee> listBox = new MultiSelectListBox<>();
+        Employee employee1 = new Employee("Employee One");
+        Employee employee2 = new Employee("Employee Two");
+        Employee employee3 = new Employee("Employee Three");
+        ListBoxListDataView<Employee> dataView = listBox
+                .setItems(employee1, employee2, employee3);
+        listBox.setValue(createSet(employee3));
+
+        Button updateButton = new Button("Update second employee's name",
+                click -> {
+                    employee2.setTitle("Employee 2");
+                    dataView.refreshItem(employee2);
+                });
+        // end-source-example
+
+        addCard(DATA_VIEW, "Refresh Items", listBox, updateButton);
+    }
+
+    private void dataViewAddAndRemoveItem() {
+        // begin-source-example
+        // source-example-heading: Add and Remove Item
+        ListBox<Employee> listBox = new ListBox<>();
+        List<Employee> employeeList = getEmployeeList();
+        ListBoxListDataView<Employee> dataView = listBox
+                .setItems(employeeList);
+        AtomicInteger employeeCounter = new AtomicInteger(1);
+        Button addButton = new Button("Add to Options",
+                click -> dataView.addItem(new Employee(
+                        "Employee " + (employeeCounter.incrementAndGet()))));
+        Button removeButton = new Button("Remove from Options", click -> {
+            int itemCount = dataView.getItemCount();
+            if (itemCount > 0) {
+                dataView.removeItem(
+                        dataView.getItem(itemCount - 1));
+            }
+        });
+        // end-source-example
+
+        HorizontalLayout layout = new HorizontalLayout(addButton, removeButton);
+        layout.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        addCard(DATA_VIEW, "Add and Remove Item", layout, listBox);
+    }
+
+    private List<Employee> getEmployeeList() {
+        List<Employee> employeeList = new ArrayList<>();
+        employeeList.add(new Employee("Employee 1"));
+        return employeeList;
+    }
+
+    private void dataViewFiltering() {
+        // begin-source-example
+        // source-example-heading: Filtering Items
+        MultiSelectListBox<Integer> numbers = new MultiSelectListBox<>();
+        ListBoxListDataView<Integer> numbersDataView = numbers
+                .setItems(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+
+        Button showOdds = new Button("Show Odds", click ->
+                numbersDataView.setFilter(number -> number % 2 == 1));
+
+        Button showEvens = new Button("Show Evens", click ->
+                numbersDataView.setFilter(number -> number % 2 == 0));
+
+        Button noFilter = new Button("Show All", click ->
+                numbersDataView.removeFilters());
+        // end-source-example
+        HorizontalLayout buttonLayout = new HorizontalLayout(showOdds, showEvens,
+                noFilter);
+        buttonLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        addCard(DATA_VIEW, "Filtering Items", buttonLayout, numbers);
+    }
+
+    private <T> Set<T> createSet(T... items) {
+        return new HashSet<>(Arrays.asList(items));
+    }
+
     private void styling() {
         Div firstDiv = new Div();
         firstDiv.setText(
@@ -195,6 +286,10 @@ public class ListBoxView extends DemoView {
         public Employee() {
         }
 
+        public Employee(String title) {
+            this.title = title;
+        }
+
         private Employee(String title, String image) {
             this.title = title;
             this.image = image;
@@ -214,6 +309,11 @@ public class ListBoxView extends DemoView {
 
         public void setImage(String image) {
             this.image = image;
+        }
+
+        @Override
+        public String toString() {
+            return title;
         }
     }
 }
