@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.vaadin.flow.component.AbstractSinglePropertyField;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
@@ -50,6 +52,7 @@ import com.vaadin.flow.data.renderer.TextRenderer;
 import com.vaadin.flow.function.SerializableBiFunction;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.shared.Registration;
 
 /**
  * Base class for the {@link ListBox} and {@link MultiSelectListBox}.
@@ -70,6 +73,7 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
     private List<ITEM> items;
     private ComponentRenderer<? extends Component, ITEM> itemRenderer = new TextRenderer<>();
     private SerializablePredicate<ITEM> itemEnabledProvider = item -> isEnabled();
+    private Registration dataProviderListenerRegistration;
 
     private int lastNotifiedDataSize = -1;
     private volatile int lastFetchedDataSize = -1;
@@ -93,7 +97,14 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
     @Deprecated
     public void setDataProvider(DataProvider<ITEM, ?> dataProvider) {
         this.dataProvider.set( Objects.requireNonNull(dataProvider) );
-        dataProvider.addDataProviderListener(event -> {
+        setupDataProviderListener(this.dataProvider.get());
+    }
+
+    private void setupDataProviderListener(DataProvider<ITEM, ?> dataProvider) {
+        if (dataProviderListenerRegistration != null) {
+            dataProviderListenerRegistration.remove();
+        }
+        dataProviderListenerRegistration = dataProvider.addDataProviderListener(event -> {
             if (event instanceof DataRefreshEvent) {
                 refresh(((DataRefreshEvent<ITEM>) event).getItem());
             } else {
@@ -102,6 +113,23 @@ public abstract class ListBoxBase<C extends ListBoxBase<C, ITEM, VALUE>, ITEM, V
         });
         rebuild();
     }
+
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        super.onAttach(attachEvent);
+        if (getDataProvider() != null && dataProviderListenerRegistration == null) {
+            setupDataProviderListener(getDataProvider());
+        }
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        if (dataProviderListenerRegistration != null) {
+        	dataProviderListenerRegistration.remove();
+        	dataProviderListenerRegistration = null;
+        }
+        super.onDetach(detachEvent);
+    }	
 
     /**
      * Gets the data provider.
