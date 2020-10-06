@@ -49,6 +49,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ListBoxView extends DemoView {
 
     private static final String DATA_VIEW = "Data View";
+    private static final String OPTION_ONE = "Option one";
+    private static final String OPTION_TWO = "Option two";
+    private static final String OPTION_THREE = "Option three";
+    private static final String OPTION_FOUR = "Option four";
+    private static final String PRESENTATION = "Presentation";
 
     @Override
     public void initView() {
@@ -68,8 +73,8 @@ public class ListBoxView extends DemoView {
         // begin-source-example
         // source-example-heading: Basic usage
         ListBox<String> listBox = new ListBox<>();
-        listBox.setItems("Option one", "Option two", "Option three");
-        listBox.setValue("Option one");
+        listBox.setItems(OPTION_ONE, OPTION_TWO, OPTION_THREE);
+        listBox.setValue(OPTION_ONE);
         // end-source-example
 
         addCard("Basic usage", listBox);
@@ -79,9 +84,9 @@ public class ListBoxView extends DemoView {
         // begin-source-example
         // source-example-heading: Disabled item
         ListBox<String> listBox = new ListBox<>();
-        listBox.setItems("Option one", "Option two", "Option three");
-        listBox.setValue("Option one");
-        listBox.setItemEnabledProvider(item -> !"Option three".equals(item));
+        listBox.setItems(OPTION_ONE, OPTION_TWO, OPTION_THREE);
+        listBox.setValue(OPTION_ONE);
+        listBox.setItemEnabledProvider(item -> !OPTION_THREE.equals(item));
         // end-source-example
 
         addCard("Disabled item", listBox);
@@ -91,8 +96,8 @@ public class ListBoxView extends DemoView {
         // begin-source-example
         // source-example-heading: Multi select list box
         MultiSelectListBox<String> listBox = new MultiSelectListBox<>();
-        listBox.setItems("Option one", "Option two", "Option three",
-                "Option four");
+        listBox.setItems(OPTION_ONE, OPTION_TWO, OPTION_THREE,
+                OPTION_FOUR);
         // end-source-example
 
         addCard("Multi select list box", listBox);
@@ -107,7 +112,7 @@ public class ListBoxView extends DemoView {
         listBox.addComponents(DayOfWeek.FRIDAY, new Hr());
         // end-source-example
 
-        addCard("Presentation", "Separators", listBox);
+        addCard(PRESENTATION, "Separators", listBox);
     }
 
     private void customOptions() {
@@ -142,7 +147,7 @@ public class ListBoxView extends DemoView {
         }));
         // end-source-example
 
-        addCard("Presentation", "Customizing the label", listBox);
+        addCard(PRESENTATION, "Customizing the label", listBox);
     }
 
     private List<Department> getDepartments() {
@@ -166,12 +171,11 @@ public class ListBoxView extends DemoView {
 
             Div description = new Div();
             description.setText(department.getDescription());
-            Div div = new Div(name, description);
-            return div;
+            return new Div(name, description);
         }));
         // end-source-example
 
-        addCard("Presentation", "Multi-line label", listBox);
+        addCard(PRESENTATION, "Multi-line label", listBox);
     }
 
     private void dataViewRefreshItem() {
